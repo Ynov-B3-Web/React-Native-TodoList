@@ -1,5 +1,18 @@
 import React, {useState} from 'react';
-import {Button, Icon, Container, Title, Content, Form, Item, Input, Picker, Text, Right} from 'native-base';
+import {
+    Button,
+    Icon,
+    Container,
+    Title,
+    Content,
+    Form,
+    Item,
+    Input,
+    Picker,
+    Text,
+    Footer,
+    FooterTab
+} from 'native-base';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddTask = ({navigation}) => {
@@ -29,18 +42,18 @@ const AddTask = ({navigation}) => {
         }
     };
 
-    const addTask = () => {
-        getData().then(r =>
+    const addTask = async () => {
+        await getData().then(r =>
             setTaskList(TaskList => [...TaskList, state])
         );
     };
 
     const saveAndNavigate = async () => {
-        addTask();
         setState({...state, id: TaskList.length + 1});
-        await storeData(TaskList).then(
-            // navigation.goBack()
-        );
+        await addTask().then(
+            await storeData(TaskList).then(
+                // navigation.goBack()
+            ));
     };
 
     return (
@@ -55,12 +68,14 @@ const AddTask = ({navigation}) => {
                     <Item>
                         <Input placeholder="Task Title"
                                value={state['title']}
+                               name="title"
                                onChangeText={(value) => setState({...state, title: value})}
                         />
                     </Item>
                     <Item>
                         <Input placeholder="Task Description"
                                value={state['description']}
+                               name="description"
                                onChangeText={(value) => setState({...state, description: value})}
                         />
                     </Item>
@@ -72,18 +87,22 @@ const AddTask = ({navigation}) => {
                             selectedValue={state['importance']}
                             onValueChange={(value) => setState({...state, importance: value})}
                         >
-                            <Picker.Item label="🟢 Minor" value="Minor"/>
-                            <Picker.Item label="🔴 Urgent" value="Urgent"/>
-                            <Picker.Item label="🔥 Express" value="Express"/>
-                            <Picker.Item label="🧠 Do not forget" value="Do not forget"/>
+                            <Picker.Item label="🟢 Minor" value="🟢"/>
+                            <Picker.Item label="🔴 Urgent" value="🔴"/>
+                            <Picker.Item label="🔥 Express" value="🔥"/>
+                            <Picker.Item label="🧠 Do not forget" value="🧠"/>
                         </Picker>
                     </Item>
                     <Content>
-                        <Button iconCenter bordered primary
-                                onPress={() => saveAndNavigate()}>
-                            <Text>Save new task</Text>
-                            <Icon name='add' primary/>
-                        </Button>
+                        <Footer style={{marginTop: 15}}>
+                            <FooterTab>
+                                <Button style={{margin: 10}} iconCenter bordered primary
+                                        onPress={() => saveAndNavigate()}>
+                                    <Text>Save new task</Text>
+                                    <Icon name='add' primary/>
+                                </Button>
+                            </FooterTab>
+                        </Footer>
                     </Content>
                 </Form>
             </Content>
